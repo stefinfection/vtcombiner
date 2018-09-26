@@ -18,7 +18,7 @@ using namespace YiCppLib::HTSLibpp;
 int main(int argc, const char *argv[]) {
 
     // Helper fxns
-    double getPValFishers(int a, int b, int c, int d, int e, int f);
+    double getPValFishers(int caseHomRef, int caseHet, int caseHomAlt, int ctrlHomRef, int ctrlHet, int ctrlHomAlt);
     double getPValCochArm(int caseHomRef, int caseHet, int caseHomAlt, int ctrlHomRef, int ctrlHet, int ctrlHomAlt);
 
     // Ensure we have at least one file coming in
@@ -30,7 +30,8 @@ int main(int argc, const char *argv[]) {
     // Open write stream to stdout
     auto htsOutHandle = htsOpen("-", "w");
 
-    // Single file case
+
+    /* Single file case */
     if (argc == 2) {
         std::cout << "Only one file provided" << std::endl;
 
@@ -90,34 +91,29 @@ int main(int argc, const char *argv[]) {
             bcf_subset(header.get(), rec.get(), 0, nullptr);
             htsOutHandle << bcfHdrRecPair(header, rec);
         });
-        exit(0);
     }
 
-    // Open read streams for inputs
-    std::vector<YiCppLib::HTSLibpp::htsFile> htsInHandles;
-    htsInHandles.reserve(argc-1);
-    for (int i = 0; i < argc-1; i++) {
-        // Get handler for file
-        htsInHandles[i] = htsOpen(argv[i+1], "r");
+
+    /* Multi-file case */
+    else {
+
+        // Open read streams for inputs
+        std::vector<YiCppLib::HTSLibpp::htsFile> htsInHandles;
+        htsInHandles.reserve(argc-1);
+        for (int i = 0; i < argc-1; i++) {
+            // Get handler for file
+            htsInHandles[i] = htsOpen(argv[i+1], "r");
+        }
+
+        // Pipe any single header out
+        auto header = htsHeader<bcfHeader>::read(htsInHandles[0]);
+        if (header.get() == nullptr) {
+            std::cerr << "unable to read header from input stream" << std::endl;
+            exit(1);
+        }
+        htsOutHandle << header;
+
     }
-
-    // Pipe any single header out
-    auto header = htsHeader<bcfHeader>::read(htsInHandles[0]);
-    if (header.get() == nullptr) {
-        std::cerr << "unable to read header from input stream" << std::endl;
-        exit(1);
-    }
-    htsOutHandle << header;
-
-
-    //
-
-
-
-
-
-
-
 
     return 0;
 }
@@ -135,9 +131,9 @@ int main(int argc, const char *argv[]) {
  * NOTE 2: e & f parameters inserted for compatibility with fxn pointer
  */
 double getPValFishers(int caseHomRef, int caseHet, int caseHomAlt, int ctrlHomRef, int ctrlHet, int ctrlHomAlt) {
-    const size_t a = caseHomRef * 2 + caseHet;    // caseRefCount
+    int a = caseHomRef * 2 + caseHet;    // caseRefCount
     int c = caseHomAlt * 2 + caseHet;    // caseAltCount
-    const size_t b = ctrlHomRef * 2 + ctrlHet;    // ctrlRefCount
+    int b = ctrlHomRef * 2 + ctrlHet;    // ctrlRefCount
     int d = ctrlHomAlt * 2 + ctrlHet;    // ctrlAltCount
     int n = a + b + c + d;
 
