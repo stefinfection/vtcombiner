@@ -6,9 +6,10 @@
 #include <tuple>
 #include <math.h>
 #include "log.h"
-//#include "config.h" TODO: ask Yi about this
+//#include "config.h" TODO: Ask YQ
 #include "../contrib/htslibpp/htslibpp.h"
 #include "../contrib/htslibpp/htslibpp_variant.h"
+#include "/usr/local/Cellar/gsl/2.5/include/gsl/gsl_randist.h"
 #include "/usr/local/Cellar/gsl/2.5/include/gsl/gsl_randist.h"
 #include "/usr/local/Cellar/gsl/2.5/include/gsl/gsl_cdf.h"
 #include "/usr/local/Cellar/gsl/2.5/include/gsl/gsl_sf_gamma.h"
@@ -17,159 +18,160 @@ using namespace YiCppLib::HTSLibpp;
 
 int main(int argc, const char *argv[]) {
 
-    // Helper fxns
-    double getPValFishers(int caseHomRef, int caseHet, int caseHomAlt, int ctrlHomRef, int ctrlHet, int ctrlHomAlt);
-    double getPValCochArm(int caseHomRef, int caseHet, int caseHomAlt, int ctrlHomRef, int ctrlHet, int ctrlHomAlt);
-
     // Ensure we have at least one file coming in
-    if (argc < 2) {
-        std::cout << "No files found to process." << std::endl;
+    int numFiles = argc - 1;
+    if (numFiles < 2) {
+        std::cout << "VtCombiner requires at least two files to combine. Please try again." << std::endl;
         exit(1);
     }
 
     // Open write stream to stdout
     auto htsOutHandle = htsOpen("-", "w");
 
+    // Declare containers for holding necessary info for each file
+    std::vector<htsIterator> currRecords;               // One iterator per record for current position
+    std::vector<htsIterator> nextRecords;               // One iterator per record for next position
 
-    /* Single file case */
-    if (argc == 2) {
-        std::cout << "Only one file provided" << std::endl;
+    std::vector<int> currCoords(numFiles, 0);           // Coordinates for current position
+    std::vector<int> nextCoords(numFiles, 0);           // Coordinates for next position
 
-        // Write out updated header
-        auto htsInHandle = htsOpen(argv[1], "r");
-        auto header = htsHeader<bcfHeader>::read(htsInHandle);
-        bcf_hdr_append(header.get(),
-                "##INFO=<ID=ENRICH_PVAL,Number=A,Type=Float,Description=\"P-value calculated from Fisher Exact Test or Cochrane Armitage Trend Test as appropriate\">");
-        htsOutHandle << header;
+    std::vector<std::string> currAlts(numFiles, "");    // Variants at current position
+    std::vector<std::string> nextAlts(numFiles, "");    // Variants at next position
 
-        std::for_each(begin(htsInHandle, header), end(htsInHandle, header), [&](auto &rec) {
-            int numAlts = rec->n_allele - 1;
-            int offset = (2 * numAlts) + 2;
+    std::vector<int*> currCounts(numFiles, nullptr);    // Counts for current position
+    std::vector<int*> nextCounts(numFiles, nullptr);    // Counts for next position
 
-            // Get enrich counts from record
-            int *countArr = nullptr, nCountArr = 0;
-            int status = bcf_get_info_int32(header.get(), rec.get(), "ENRICH_COUNTS", &countArr, &nCountArr);
-            if (status < 0) {
-                std::cout << "Skipping record at " << bcf_hdr_id2name(header.get(), rec->rid)
-                    << ":" << rec->pos + 1 << " - could not obtain enrichment counts" << std::endl;
-                return;
-            }
+    // ***HELPER FXNS
+    htsIterator advanceAndFill(htsIterator record, std::vector<int> &coords, std::vector<std::string> &alts, std::vector<int*> &counts, int arrIndex, int advanceNum);
+    void sortAndCombine(std::vector<htsIterator> &currRecords, std::vector<htsIterator> &nextRecords, std::vector<int> &currCoords, std::vector<int> &nextCoords,
+            std::vector<std::string> &currAlts, std::vector<std::string> &nextAlts, std::vector<int*> &currCounts, std::vector<int*> &nextCounts);
 
-            // Create smart pointer for counts
-            std::unique_ptr<int> uniqCountArr(countArr);
+    // ***GET ITERATORS FOR EACH FILE AND POPULATE ABOVE ARRAYS TO PRIME MAIN LOOP
+    for (int i = 0; i < numFiles; i++) {
+        auto file = htsOpen(argv[i + 1], "r");
+        auto header = htsHeader<bcfHeader>::read(file);
+        auto currRec = begin(file, header);             // Get first line in file
 
-            // Assign p-value function according to sample size
-            int numSamples = 0;
-            for (int i = 0; i < offset; i++) {
-                numSamples += countArr[i];
-            }
-            double (*pFunc)(int a, int b, int c, int d, int e, int f) = getPValCochArm;
-            if (numSamples < 1000) {
-                pFunc = getPValFishers;
-            }
+        auto nextRec = begin(file, header);             // Get next line in file
+        nextRec++;
 
-            // Get p-values for each alt
-            std::vector<double> pVals(numAlts, 0);
-            for (int i = 1; i < (numAlts * 2) - 1; i = i + 2) {
-                int proHomRef = countArr[0];
-                int subHomRef = countArr[0 + offset];
-                int nonSubHomRef = proHomRef - subHomRef;
+        // Get current fields and put in respective arrays
+        currCoords[i] = currRec.pos + 1;
+        // TODO: get alt string(s) and put in array
+        // TODO: get counts from INFO field and put in array
 
-                int proHet = countArr[i];
-                int subHet = countArr[i + offset];
-                int nonSubHet = proHet - subHet;
+        // Advance iterator and get next fields
+        nextCoords[i] = nextRec.pos + 1;
+        // TODO: get alt string(s) and put in array
+        // TODO: get counts from INFO field and put in array
 
-                int proHomAlt = countArr[i + 1];
-                int subHomAlt = countArr[i + 1 + offset];
-                int nonSubHomAlt = proHomAlt - subHomAlt;
-
-                pVals[i - 1] = pFunc(subHomRef, subHet, subHomAlt, nonSubHomRef, nonSubHet, nonSubHomAlt);
-            }
-
-            // Insert p-values into line and output
-            bcf_update_info_int32(header.get(), rec.get(), "ENRICH_PVAL", &pVals[0], numAlts);
-            bcf_subset(header.get(), rec.get(), 0, nullptr);
-            htsOutHandle << bcfHdrRecPair(header, rec);
-        });
+        // Move iterator back to first position and assign control of iterator to vector
+        currRecords.push_back(std::move(currRec));      // **Why doesn't this work?
+        nextRecords.push_back(std::move(nextRec));      // **Why doesn't this work?
     }
 
+    // ***MAIN LOOP
+    int finishCount = 0;
+    while (finishCount < numFiles) {
+        for (int i = 0; i < numFiles; i++) {
 
-    /* Multi-file case */
-    else {
+            // Stable sort the arrays and combine any duplicates
+            sortAndCombine(currRecords, nextRecords, currCoords, nextCoords, currAlts, nextAlts, currCounts,
+                           nextCounts);
 
-        // Open read streams for inputs
-        std::vector<YiCppLib::HTSLibpp::htsFile> htsInHandles;
-        htsInHandles.reserve(argc-1);
-        for (int i = 0; i < argc-1; i++) {
-            // Get handler for file
-            htsInHandles[i] = htsOpen(argv[i+1], "r");
+            // Get first record and write out
+            auto rec = std::move(currRecords[i]);
+            htsOutHandle << rec;                        // **Why doesn't this work?
+
+            // Advance to the next-next record and fill the coordinate, alt, and count arrays
+            rec = std::move(advanceAndFill(std::move(rec), currCoords, currAlts, currCounts, i, 2));
+
+            // Find next smallest coordinate
+            if (nextCoords[i] < currCoords[i + 1]) {
+                rec = std::move(nextRecords[i]);
+                htsOutHandle << rec;
+                rec = std::move(advanceAndFill(std::move(rec), nextCoords, nextAlts, nextCounts, i, 2));
+            } else if (currCoords[i + 1] < nextCoords[i]) {
+                rec = std::move(currRecords[i + 1]);
+                htsOutHandle << rec;
+                rec = std::move(advanceAndFill(std::move(rec), currCoords, currAlts, currCounts, i + 1, 2));
+            }
+            // If we get here, we have a tie for INF, meaning we're at the end of both files
+            else {
+                finishCount += 2;
+            }
         }
-
-        // Pipe any single header out
-        auto header = htsHeader<bcfHeader>::read(htsInHandles[0]);
-        if (header.get() == nullptr) {
-            std::cerr << "unable to read header from input stream" << std::endl;
-            exit(1);
-        }
-        htsOutHandle << header;
-
     }
-
     return 0;
 }
 
-/* Takes in values A, B, C, D representing a 2x2 contingency table:
- *
- *     case    control
- *      --      --
- *      a    |   b      |   ref. allele count
- *      c    |   d      |   alt. allele count
- *
- * Performs a Fisher's Exact Test and returns the corresponding p-value.
- *
- * NOTE: utilizes GSL Gamma library
- * NOTE 2: e & f parameters inserted for compatibility with fxn pointer
- */
-double getPValFishers(int caseHomRef, int caseHet, int caseHomAlt, int ctrlHomRef, int ctrlHet, int ctrlHomAlt) {
-    int a = caseHomRef * 2 + caseHet;    // caseRefCount
-    int c = caseHomAlt * 2 + caseHet;    // caseAltCount
-    int b = ctrlHomRef * 2 + ctrlHet;    // ctrlRefCount
-    int d = ctrlHomAlt * 2 + ctrlHet;    // ctrlAltCount
-    int n = a + b + c + d;
-
-    double num = gsl_sf_fact(a + b) * gsl_sf_fact(c + d) * gsl_sf_fact(a + c) * gsl_sf_fact(b + d);
-    double denom = gsl_sf_fact(a) + gsl_sf_fact(b) + gsl_sf_fact(c) + gsl_sf_fact(d) + gsl_sf_fact(n);
-    return num / denom;
+/* Advances given iterator by given value. Overwrites the information in the given arrays as appropriate at the given index.
+ * Returns control of iterator back to caller. */
+htsIterator advanceAndFill(htsIterator record, std::vector<int> &coords, std::vector<std::string> &alts, std::vector<int*> &counts, int arrIndex, int advanceNum) {
+    // TODO: implement
+    // Check for null/end of file here - if so, put +inf in corresponding coord position
+    return record;
 }
 
-/* Performs a Cochran Armitage Trend test for the given values. Takes in the following parameters:
-*  homozygous reference counts (AA), heterozygous alternate counts (Aa), homozygous alternate counts (aa) from an
-*  experimental group (aka subset cohort), and a control group (aka non-subset cohort), respectively.
-*  Assumes a codominant model for weighting of (0,1,2).
-*  Returns a p-value based on a single degree of freedom, or one independent variable.
-*
-*  For more info: http://statgen.org/wp-content/uploads/2012/08/armitage.pdf
-*
-* NOTE: utilizes GSL CDF and Random Numbers libraries
-*/
-double getPValCochArm(int caseHomRef, int caseHet, int caseHomAlt, int ctrlHomRef, int ctrlHet, int ctrlHomAlt) {
-    // Sum matrix totals
-    int ctrlTotal = ctrlHomRef + ctrlHet + ctrlHomAlt;  // S
-    int caseTotal = caseHomRef + caseHet + caseHomAlt;  // R
-    int sampleTotal = ctrlTotal + caseTotal;            // N
-    int hetTotal = ctrlHet + caseHet;                   // n_1
-    int homAltTotal = ctrlHomAlt + caseHomAlt;          // n_2
-
-    // Calculate z-value using Saseini notation and weighted vector of (0,1,2)
-    // TODO: double check we won't get overflow here
-    int testStat = (sampleTotal * (caseHet + (2 * caseHomAlt))) - (caseTotal * (hetTotal + (2 * homAltTotal)));     // U
-    int testVarA = ctrlTotal * caseTotal;                                                                           // SR
-    int testVarB = sampleTotal * (hetTotal + (4 * homAltTotal));                                                    // N(n_1 + 4n_2)
-    int testVarC = pow((hetTotal + (2 * homAltTotal)), 2.0);                                                        // (n_1 + 2n_2)^2
-    int num = sampleTotal * (pow(testStat, 2.0));                                                                   // N * U^2
-    int denom = testVarA * (testVarB - testVarC);                                                                   // A(B-C)
-    double z = sqrt((num / denom));
-
-    // Calculate p-value from z-value using one degree of freedom
-    return (gsl_cdf_chisq_Q(z, 1) - gsl_cdf_chisq_P(z, 1)) * 2;
+/* Takes in current and next arrays. Stable sorts all arrays in same relative order. Then searches for duplicates and combines as necessary. */
+void sortAndCombine() {
+    // TODO: implement - this will be the pain in the butt to get correct
 }
+
+/* Takes in record, coordinate, alternate, and count arrays, along with indices to swap. Performs swap. */
+void swap() {
+    // TODO: implement
+}
+
+
+
+
+
+
+// *** OTHER APPROACHES / MUSINGS...
+//    MAY NEED TO USE NON-WRAPPED VERSION
+//    std::vector<::htsFile*> files(numFiles, nullptr);
+//    std::vector<bcf_hdr_t*> headers(numFiles, nullptr);
+//    std::vector<bcf1_t*> lines(numFiles, nullptr);
+//
+//    for (int i = 0; i < numFiles; i++) {
+//        files[i] = HTSLIB_VCF_H::vcf_open(argv[i+1], "r");
+//        headers[i] = HTSLIB_VCF_H::bcf_hdr_read(files[i]);
+//
+//        // Read next line
+//        HTSLIB_VCF_H::vcf_read(files[i], headers[i], lines[i]);
+//
+//        // TEST: Output line
+//        htsOutHandle << lines[i];
+//    }
+
+//  TODO: can't seem to get Yi's lib to work - ask him if I'm reinventing the wheel
+//    std::vector<YiCppLib::HTSLibpp::htsFile> files;
+//    std::vector<YiCppLib::HTSLibpp::htsHeader<bcfHeader>> headers;
+//    std::vector<YiCppLib::HTSLibpp::htsReader<bcfRecord>> lines;
+
+//    for (int i = 0; i < numFiles; i++) {
+//        auto currFile = YiCppLib::HTSLibpp::htsOpen(argv[i+1], "r");
+//        //auto currHdr = YiCppLib::HTSLibpp::htsHeader<bcfHeader>::read(currFile);
+//        auto currHdr = YiCppLib::HTSLibpp::htsHeader<bcfHeader>::read(currFile);
+//        headers[i] = std::move(currHdr);
+//    }
+
+//    // Pipe any single header out
+//    auto header = htsHeader<bcfHeader>::read(files[0]);
+//    if (header.get() == nullptr) {
+//        std::cerr << "Unable to read header from first file. Please try again." << std::endl;
+//        exit(1);
+//    }
+//    htsOutHandle << header;
+
+// TODO: implement multi-loop iterations
+//    std::vector<bcf1_t*> linePtrs(numFiles, nullptr);
+//    for (int i = 0; i < numFiles; i++) {
+//
+//        // Get pointers to first line for each file
+//        header = htsHeader<bcfHeader>::read(htsInHandles[i]);
+//        auto rec = htsReader<bcfRecord>::read(htsInHandles[i], header);
+//
+//
+//    }
