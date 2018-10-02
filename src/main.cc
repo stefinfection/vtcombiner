@@ -1,3 +1,5 @@
+// SJG & YQ Sept2018
+
 #include <iostream>
 #include <sstream>
 #include <vector>
@@ -41,10 +43,17 @@ int main(int argc, const char *argv[]) {
     std::vector<int*> currCounts(numFiles, nullptr);    // Counts for current position
     std::vector<int*> nextCounts(numFiles, nullptr);    // Counts for next position
 
+    // TODO: change other helper fxns accordingly fo bcf2vec implementation
     // ***HELPER FXNS
     htsIterator advanceAndFill(htsIterator record, std::vector<int> &coords, std::vector<std::string> &alts, std::vector<int*> &counts, int arrIndex, int advanceNum);
     void sortAndCombine(std::vector<htsIterator> &currRecords, std::vector<htsIterator> &nextRecords, std::vector<int> &currCoords, std::vector<int> &nextCoords,
             std::vector<std::string> &currAlts, std::vector<std::string> &nextAlts, std::vector<int*> &currCounts, std::vector<int*> &nextCounts);
+    std::vector<bcfRecord> bcf2vec(htsReader<bcfRecord>::iterator begin, htsReader<bcfRecord>::iterator end);
+
+    // for each file,
+        // load records into memory using YQ convenience fxn
+        // then can iterate over like a normal array (full of unique pointers) - may have to dereference twice here to get propertiesß
+
 
     // ***GET ITERATORS FOR EACH FILE AND POPULATE ABOVE ARRAYS TO PRIME MAIN LOOP
     for (int i = 0; i < numFiles; i++) {
@@ -121,6 +130,16 @@ void sortAndCombine() {
 /* Takes in record, coordinate, alternate, and count arrays, along with indices to swap. Performs swap. */
 void swap() {
     // TODO: implement
+}
+
+/* Takes in iterator to single file, copies all lines as smart pointers to vector, returns vector and control of smart pointers. */
+std::vector<bcfRecord> bcf2vec(htsReader<bcfRecord>::iterator begin, htsReader<bcfRecord>::iterator end) {
+    std::vector<bcfRecord> records;
+    std::for_each(std::move(begin), std::move(end), [&records](const auto &rec) {
+       bcfRecord dupRec{bcf_dup(rec.get())};
+       records.push_back(std::move(dupRec));        // Record pointer only exists in array - pass reference around
+    });
+    return std::move(records);
 }
 
 
