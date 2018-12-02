@@ -47,13 +47,13 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="cc" value="23047" />
+          <entry key="cc" value="23476" />
           <entry key="h" value="2" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="ObjectiveC" value="23049" />
+          <entry key="ObjectiveC" value="23478" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.vcs.git.usages" />
@@ -70,8 +70,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main.cc">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="48">
-              <caret line="10" column="34" lean-forward="true" selection-start-line="10" selection-start-column="34" selection-end-line="10" selection-end-column="34" />
+            <state relative-caret-position="434">
+              <caret line="109" column="108" selection-start-line="109" selection-start-column="108" selection-end-line="109" selection-end-column="108" />
             </state>
           </provider>
         </entry>
@@ -101,7 +101,7 @@
         <entry file="file://$PROJECT_DIR$/contrib/htslibpp/htslibpp_variant.h">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="290">
-              <caret line="95" column="40" lean-forward="true" selection-start-line="95" selection-start-column="40" selection-end-line="95" selection-end-column="40" />
+              <caret line="95" column="40" selection-start-line="95" selection-start-column="40" selection-end-line="95" selection-end-column="40" />
               <folding>
                 <element signature="e#764#766#0" expanded="true" />
               </folding>
@@ -113,7 +113,7 @@
         <entry file="file:///usr/local/include/htslib/vcf.h">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="169">
-              <caret line="213" column="34" lean-forward="true" selection-start-line="177" selection-start-column="15" selection-end-line="177" selection-end-column="18" />
+              <caret line="213" column="34" selection-start-line="213" selection-start-column="34" selection-end-line="213" selection-end-column="34" />
               <folding>
                 <element signature="e#1421#1440#0" expanded="true" />
               </folding>
@@ -173,9 +173,9 @@
   </component>
   <component name="OCFindUsagesOptions" text="true" ivars="false" properties="true" derivedClasses="false" />
   <component name="ProjectFrameBounds">
-    <option name="x" value="2143" />
-    <option name="y" value="167" />
-    <option name="width" value="1645" />
+    <option name="x" value="61" />
+    <option name="y" value="43" />
+    <option name="width" value="1785" />
     <option name="height" value="1010" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
@@ -270,18 +270,18 @@
       <updated>1537833101185</updated>
       <workItem from="1537833102602" duration="77812000" />
       <workItem from="1543270582541" duration="2246000" />
-      <workItem from="1543708847513" duration="8735000" />
+      <workItem from="1543708847513" duration="11967000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="88793000" />
+    <option name="totallyTimeSpent" value="92025000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="2143" y="167" width="1645" height="1010" extended-state="0" />
+    <frame x="61" y="43" width="1785" height="1010" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.13661884" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.12564544" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -336,7 +336,7 @@
     <entry file="file://$PROJECT_DIR$/contrib/htslibpp/htslibpp_variant.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="290">
-          <caret line="95" column="40" lean-forward="true" selection-start-line="95" selection-start-column="40" selection-end-line="95" selection-end-column="40" />
+          <caret line="95" column="40" selection-start-line="95" selection-start-column="40" selection-end-line="95" selection-end-column="40" />
           <folding>
             <element signature="e#764#766#0" expanded="true" />
           </folding>
@@ -346,7 +346,7 @@
     <entry file="file:///usr/local/include/htslib/vcf.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="169">
-          <caret line="213" column="34" lean-forward="true" selection-start-line="177" selection-start-column="15" selection-end-line="177" selection-end-column="18" />
+          <caret line="213" column="34" selection-start-line="213" selection-start-column="34" selection-end-line="213" selection-end-column="34" />
           <folding>
             <element signature="e#1421#1440#0" expanded="true" />
           </folding>
@@ -358,8 +358,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main.cc">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="48">
-          <caret line="10" column="34" lean-forward="true" selection-start-line="10" selection-start-column="34" selection-end-line="10" selection-end-column="34" />
+        <state relative-caret-position="434">
+          <caret line="109" column="108" selection-start-line="109" selection-start-column="108" selection-end-line="109" selection-end-column="108" />
         </state>
       </provider>
     </entry>

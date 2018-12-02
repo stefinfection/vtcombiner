@@ -1,4 +1,8 @@
 // SJG & YQ Dec2018
+// Combines variants from multiple files
+// Puts multi-allelic sites into a single line
+// Combines the following fields:
+// ALT, INFO-> GT, AF,
 
 #include <iostream>
 #include <sstream>
@@ -71,7 +75,6 @@ int main(int argc, const char *argv[]) {
     while (!allFilesFinished) {
         for (int i = 0; i < numFiles; i++) {
             if (!fileFinished[i] && (*currRecs[i])->pos+1 <= lowCoord) {
-                // TODO: if we have variant at same position but diff allele, order by allele
                 lowCoord = (*currRecs[i])->pos+1;
                 lowIndex = i;
             }
@@ -102,7 +105,10 @@ int main(int argc, const char *argv[]) {
     int nextLine = 1;
     while (nextLine < combinedRecs.size()) {
         if (combinedRecs[currLine]->pos+1 == combinedRecs[nextLine]->pos+1) {
-            if (combinedRecs[currLine]->alt == combinedRecs[nextLine]->alt) {   // TODO: figure out how to get allele info here
+            // TODO: combine all lines at the same position into a single, multi-allelic line
+            // This will require calling unpack on the struct to get allele info
+            // Can set max_unpack to pull in just allele at first, and then re-unpack if combining required?
+            if (combinedRecs[currLine]->alt == combinedRecs[nextLine]->alt) {
             }
             else {
                 htsOutHandle << bcfHdrRecPair(headers[0], combinedRecs[currLine]);  // TODO: use combined header here
