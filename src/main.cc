@@ -36,7 +36,6 @@ int main(int argc, const char *argv[]) {
 
     std::vector<bcfRecord> bcf2vec(htsReader<bcfRecord>::iterator begin, htsReader<bcfRecord>::iterator end);
 
-
     // ***LOAD RECORDS AND HEADERS INTO MEMORY
     std::vector<bcfHeader> headers;                     // Vector of headers, one per file - stay in static positions
     std::vector<std::vector<bcfRecord>> recordArr;      // Vector of vectors of records - each record is a smart ptr (bcfRecord)
@@ -54,14 +53,15 @@ int main(int argc, const char *argv[]) {
 
     // ***PRIME LOOP
     // Load first record from each file into our working array
-    std::vector<bcfRecord*> currRecs(numFiles);                 // Vector of individual lines - one per file and in relative order to files/headers
+    std::vector<bcfRecord *> currRecs(
+            numFiles);                 // Vector of individual lines - one per file and in relative order to files/headers
     for (int i = 0; i < numFiles; i++) {
         currRecs.push_back(&(recordArr[i][0]));
     }
     bool advanceMin = false;        // True if we've seen all lines at or below the current coordMin
     int coordMin = INFINITY;        // The minimum coordinate in currRecs per iteration
-    bcfHeader* outHdr = nullptr;       // The combined header for the output line
-    bcfRecord* outLine = nullptr;      // The next line to be written to the output stream
+    bcfHeader *outHdr = nullptr;       // The combined header for the output line
+    bcfRecord *outLine = nullptr;      // The next line to be written to the output stream
     bool outOfLines = false;        // True if we have any remaining lines to be processed in any files
 
 
@@ -75,7 +75,7 @@ int main(int argc, const char *argv[]) {
             }
         }
         // Retrieve lines with the minimum coordinate
-        while(!advanceMin) {
+        while (!advanceMin) {
             bool noLines = true;
             bool noLineAtMin = true;
             for (int i = 0; i < numFiles; i++) {
@@ -89,14 +89,16 @@ int main(int argc, const char *argv[]) {
                         outHdr = &headers[i];
                         outLine = currRecs[i];
                         // TODO: removeInfo(outHdr, outLine); - remove all INFO fields besides genotypes for simplicity & browser memory issues? [optional]
-                    // Combine lines
+                        // Combine lines
                     } else {
                         // Get genotypes out of outLine
                         int status, *out_gt_arr = nullptr, out_ngt_arr = 0;
                         status = bcf_get_genotypes((*outHdr).get(), (*outLine).get(), &out_gt_arr, &out_ngt_arr);
                         if (status <= 0) {
-                            logger(LOGLV_WARN) << "skipping record at " << bcf_hdr_id2name((*outHdr).get(), (*outLine)->rid)
-                                               << ":" << (*outLine)->pos + 1 << " - could not obtain genotype" << std::endl;
+                            logger(LOGLV_WARN) << "skipping record at "
+                                               << bcf_hdr_id2name((*outHdr).get(), (*outLine)->rid)
+                                               << ":" << (*outLine)->pos + 1 << " - could not obtain genotype"
+                                               << std::endl;
                             continue;
                         }
                         std::unique_ptr<int> uniq_out_gt_arr(out_gt_arr);
@@ -105,8 +107,10 @@ int main(int argc, const char *argv[]) {
                         int *curr_gt_arr = nullptr, curr_ngt_arr = 0;
                         status = bcf_get_genotypes(headers[i].get(), (*currRecs[i]).get(), &curr_gt_arr, &curr_ngt_arr);
                         if (status <= 0) {
-                            logger(LOGLV_WARN) << "skipping record at " << bcf_hdr_id2name(headers[i].get(), (*currRecs[i])->rid)
-                                               << ":" << (*currRecs[i])->pos + 1 << " - could not obtain genotype" << std::endl;
+                            logger(LOGLV_WARN) << "skipping record at "
+                                               << bcf_hdr_id2name(headers[i].get(), (*currRecs[i])->rid)
+                                               << ":" << (*currRecs[i])->pos + 1 << " - could not obtain genotype"
+                                               << std::endl;
                             continue;
                         }
                         std::unique_ptr<int> uniq_curr_gt_arr(curr_gt_arr);
@@ -118,7 +122,7 @@ int main(int argc, const char *argv[]) {
                     currCoord = getNextLine(currRecs[i]);
                     // TODO: noLines &= endOfFile
 
-                // Sanity check for testing
+                    // Sanity check for testing
                 } else if (currCoord < coordMin) {
                     logger(LOGLV_WARN) << "ERROR: minimum is not minimum";
                 }
@@ -135,4 +139,15 @@ int main(int argc, const char *argv[]) {
         outHdr = nullptr;
         coordMin = INFINITY;
     }
+}
+
+/* Takes in iterator to single file, copies all lines as smart pointers to vector, returns vector and control of smart pointers. */
+std::vector<bcfRecord> bcf2vec(htsReader<bcfRecord>::iterator begin, htsReader<bcfRecord>::iterator end) {
+    std::vector<bcfRecord> records;
+    std::for_each(std::move(begin), std::move(end), [&records](const auto &rec) {
+        bcfRecord dupRec{bcf_dup(rec.get())};
+        records.push_back(std::move(dupRec));        // Record pointer only exists in array - pass reference around
+    });
+    return std::move(records);
+}
 
