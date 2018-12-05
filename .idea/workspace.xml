@@ -27,10 +27,12 @@
     <session id="-1364837013">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
-          <entry key="project.closed" value="2" />
+          <entry key="project.closed" value="3" />
           <entry key="project.open.time.0" value="2" />
           <entry key="project.open.time.1" value="1" />
-          <entry key="project.opened" value="3" />
+          <entry key="project.open.time.17" value="1" />
+          <entry key="project.open.time.7" value="1" />
+          <entry key="project.opened" value="5" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
@@ -47,13 +49,13 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="cc" value="23476" />
-          <entry key="h" value="2" />
+          <entry key="cc" value="28765" />
+          <entry key="h" value="3" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="ObjectiveC" value="23478" />
+          <entry key="ObjectiveC" value="28768" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.vcs.git.usages" />
@@ -70,17 +72,11 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main.cc">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="434">
-              <caret line="109" column="108" selection-start-line="109" selection-start-column="108" selection-end-line="109" selection-end-column="108" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file:///Library/Developer/CommandLineTools/usr/include/c++/v1/memory">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="41104">
-              <caret line="2569" column="10" selection-start-line="2569" selection-start-column="10" selection-end-line="2569" selection-end-column="10" />
+            <state relative-caret-position="349">
+              <caret line="114" column="31" lean-forward="true" selection-start-line="114" selection-start-column="31" selection-end-line="114" selection-end-column="31" />
+              <folding>
+                <element signature="e#4607#6431#0" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -88,8 +84,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/contrib/htslibpp/htslibpp.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="634">
-              <caret line="123" column="17" selection-start-line="123" selection-start-column="17" selection-end-line="123" selection-end-column="17" />
+            <state relative-caret-position="1707">
+              <caret line="107" column="22" lean-forward="true" selection-start-line="107" selection-start-column="22" selection-end-line="107" selection-end-column="22" />
               <folding>
                 <element signature="e#0#17#0" expanded="true" />
               </folding>
@@ -100,8 +96,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/contrib/htslibpp/htslibpp_variant.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="290">
-              <caret line="95" column="40" selection-start-line="95" selection-start-column="40" selection-end-line="95" selection-end-column="40" />
+            <state relative-caret-position="583">
+              <caret line="95" column="14" selection-start-line="95" selection-start-column="14" selection-end-line="95" selection-end-column="14" />
               <folding>
                 <element signature="e#764#766#0" expanded="true" />
               </folding>
@@ -112,8 +108,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file:///usr/local/include/htslib/vcf.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="169">
-              <caret line="213" column="34" selection-start-line="213" selection-start-column="34" selection-end-line="213" selection-end-column="34" />
+            <state relative-caret-position="296">
+              <caret line="726" column="12" selection-start-line="726" selection-start-column="12" selection-end-line="726" selection-end-column="12" />
               <folding>
                 <element signature="e#1421#1440#0" expanded="true" />
               </folding>
@@ -142,7 +138,6 @@
       <find>uniq</find>
       <find>hts_open</find>
       <find>htsIterator</find>
-      <find>read</find>
       <find>bcf_t</find>
       <find>bcf_</find>
       <find>bcf1_t</find>
@@ -152,6 +147,8 @@
       <find>bcf_hdr_t</find>
       <find>hdr</find>
       <find>bcf2vec</find>
+      <find>read</find>
+      <find>get(</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -172,11 +169,11 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="OCFindUsagesOptions" text="true" ivars="false" properties="true" derivedClasses="false" />
-  <component name="ProjectFrameBounds">
-    <option name="x" value="61" />
-    <option name="y" value="43" />
-    <option name="width" value="1785" />
-    <option name="height" value="1010" />
+  <component name="ProjectFrameBounds" extendedState="6">
+    <option name="x" value="5" />
+    <option name="y" value="23" />
+    <option name="width" value="1890" />
+    <option name="height" value="1057" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
@@ -270,18 +267,20 @@
       <updated>1537833101185</updated>
       <workItem from="1537833102602" duration="77812000" />
       <workItem from="1543270582541" duration="2246000" />
-      <workItem from="1543708847513" duration="11967000" />
+      <workItem from="1543708847513" duration="12400000" />
+      <workItem from="1543797766683" duration="3574000" />
+      <workItem from="1543889809156" duration="10190000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="92025000" />
+    <option name="totallyTimeSpent" value="106222000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="61" y="43" width="1785" height="1010" extended-state="0" />
+    <frame x="6" y="24" width="1914" height="1056" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.12564544" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.120192304" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -311,10 +310,13 @@
   <component name="editorHistoryManager">
     <entry file="file:///Library/Developer/CommandLineTools/usr/include/c++/v1/memory">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="41104">
+        <state relative-caret-position="706">
           <caret line="2569" column="10" selection-start-line="2569" selection-start-column="10" selection-end-line="2569" selection-end-column="10" />
         </state>
       </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/CMakeLists.txt">
+      <provider selected="true" editor-type-id="text-editor" />
     </entry>
     <entry file="file:///usr/local/include/htslib/hts.h">
       <provider selected="true" editor-type-id="text-editor">
@@ -325,8 +327,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/contrib/htslibpp/htslibpp.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="634">
-          <caret line="123" column="17" selection-start-line="123" selection-start-column="17" selection-end-line="123" selection-end-column="17" />
+        <state relative-caret-position="1707">
+          <caret line="107" column="22" lean-forward="true" selection-start-line="107" selection-start-column="22" selection-end-line="107" selection-end-column="22" />
           <folding>
             <element signature="e#0#17#0" expanded="true" />
           </folding>
@@ -335,8 +337,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/contrib/htslibpp/htslibpp_variant.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="290">
-          <caret line="95" column="40" selection-start-line="95" selection-start-column="40" selection-end-line="95" selection-end-column="40" />
+        <state relative-caret-position="583">
+          <caret line="95" column="14" selection-start-line="95" selection-start-column="14" selection-end-line="95" selection-end-column="14" />
           <folding>
             <element signature="e#764#766#0" expanded="true" />
           </folding>
@@ -345,21 +347,21 @@
     </entry>
     <entry file="file:///usr/local/include/htslib/vcf.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="169">
-          <caret line="213" column="34" selection-start-line="213" selection-start-column="34" selection-end-line="213" selection-end-column="34" />
+        <state relative-caret-position="296">
+          <caret line="726" column="12" selection-start-line="726" selection-start-column="12" selection-end-line="726" selection-end-column="12" />
           <folding>
             <element signature="e#1421#1440#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/CMakeLists.txt">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main.cc">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="434">
-          <caret line="109" column="108" selection-start-line="109" selection-start-column="108" selection-end-line="109" selection-end-column="108" />
+        <state relative-caret-position="349">
+          <caret line="114" column="31" lean-forward="true" selection-start-line="114" selection-start-column="31" selection-end-line="114" selection-end-column="31" />
+          <folding>
+            <element signature="e#4607#6431#0" />
+          </folding>
         </state>
       </provider>
     </entry>
